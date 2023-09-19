@@ -11,6 +11,7 @@ RUN pip install pip -U -i https://mirrors.aliyun.com/pypi/simple/ \
 COPY . /home/vllm/
 RUN cp -rf /home/vllm/vllm/ /usr/local/python3.9.10/lib/python3.9/site-packages/
 
+COPY ./run.sh /home/server/run.sh
 WORKDIR /home/server
 
 # CMD ["python", "src/server.py"]
