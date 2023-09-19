@@ -30,6 +30,7 @@ from vllm.outputs import RequestOutput
 from vllm.sampling_params import SamplingParams
 from vllm.transformers_utils.tokenizer import get_tokenizer
 from vllm.utils import random_uuid
+from vllm.entrypoints.openai.protocol import TaichuRequest
 
 try:
     import fastchat
@@ -572,8 +573,8 @@ async def create_completion(request: CompletionRequest, raw_request: Request):
     return response
 
 
-@app.post("/v1/infer")
-async def infer(request: CompletionRequest, raw_request: Request):
+@app.post("/")
+async def infer(request: TaichuRequest, raw_request: Request):
     """Completion API similar to OpenAI's API.
 
     See https://platform.openai.com/docs/api-reference/completions/create

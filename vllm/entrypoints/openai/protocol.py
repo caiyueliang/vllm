@@ -96,6 +96,31 @@ class CompletionRequest(BaseModel):
     use_beam_search: Optional[bool] = False
 
 
+class TaichuRequest(BaseModel):
+    model: str
+    # a string, array of strings, array of tokens, or array of token arrays
+    prompt: Union[List[int], List[List[int]], str, List[str]]
+    input_text: Union[List[int], List[List[int]], str, List[str]]
+    context: Union[List[int], List[List[int]], str, List[str]]
+    suffix: Optional[str] = None
+    max_tokens: Optional[int] = 16
+    temperature: Optional[float] = 1.0
+    top_p: Optional[float] = 1.0
+    n: Optional[int] = 1
+    stream: Optional[bool] = False
+    logprobs: Optional[int] = None
+    echo: Optional[bool] = False
+    stop: Optional[Union[str, List[str]]] = Field(default_factory=list)
+    presence_penalty: Optional[float] = 0.0
+    frequency_penalty: Optional[float] = 0.0
+    best_of: Optional[int] = None
+    logit_bias: Optional[Dict[str, float]] = None
+    user: Optional[str] = None
+    # Additional parameters supported by vLLM
+    top_k: Optional[int] = -1
+    ignore_eos: Optional[bool] = False
+    use_beam_search: Optional[bool] = False
+
 class LogProbs(BaseModel):
     text_offset: List[int] = Field(default_factory=list)
     token_logprobs: List[Optional[float]] = Field(default_factory=list)
