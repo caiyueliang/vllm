@@ -9,9 +9,7 @@ RUN pip install pip -U -i https://mirrors.aliyun.com/pypi/simple/ \
 
 
 COPY . /home/vllm/
-RUN pip install pip -U -i https://mirrors.aliyun.com/pypi/simple/ \
-    && cd /home/vllm/ \
-    && pip install . -i https://mirrors.aliyun.com/pypi/simple/
+RUN cp -rf /home/vllm/vllm/ /usr/local/python3.9.10/lib/python3.9/site-packages/
 
 WORKDIR /home/server
 
