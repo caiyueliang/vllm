@@ -256,7 +256,7 @@ class LLMEngine:
             assert prompt is not None
             prompt_token_ids = self.tokenizer.encode(prompt)
 
-        # Create the sequences.
+       # Create the sequences.
         block_size = self.cache_config.block_size
         seq_id = next(self.seq_counter)
         seq = Sequence(seq_id, prompt, prompt_token_ids, block_size)
@@ -265,6 +265,8 @@ class LLMEngine:
         seq_group = SequenceGroup(request_id, [seq], sampling_params,
                                   arrival_time)
 
+        logger.info("[add_request] prompt: {}; prompt_token_ids: {}; block_size: {}, seq_id: {}, seq_group: {}".format(
+            prompt, prompt_token_ids, block_size, seq_id, seq_group))
         # Add the sequence group to the scheduler.
         self.scheduler.add_seq_group(seq_group)
 
@@ -556,6 +558,7 @@ class LLMEngine:
             blocks_to_copy=scheduler_outputs.blocks_to_copy,
         )
 
+        logger.info("[step] output: {}".format(output))
         return self._process_model_outputs(output, scheduler_outputs)
 
     def _log_system_stats(
