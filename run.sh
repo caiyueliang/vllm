@@ -5,7 +5,7 @@ if [ -z "$DATA_TYPE" ]; then
     export DATA_TYPE="auto"
 fi
 if [ -z "$MAX_NUM_SEQS" ]; then
-    export MAX_NUM_SEQS=32
+    export MAX_NUM_SEQS=256
 fi
 if [ -z "$BLOCK_SIZE" ]; then
     export BLOCK_SIZE=16

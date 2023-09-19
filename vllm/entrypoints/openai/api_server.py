@@ -572,8 +572,8 @@ async def create_completion(request: CompletionRequest, raw_request: Request):
     return response
 
 
-@app.post("/v1/test")
-async def create_completion(request: CompletionRequest, raw_request: Request):
+@app.post("/v1/infer")
+async def infer(request: CompletionRequest, raw_request: Request):
     """Completion API similar to OpenAI's API.
 
     See https://platform.openai.com/docs/api-reference/completions/create
@@ -586,7 +586,7 @@ async def create_completion(request: CompletionRequest, raw_request: Request):
           suffix)
         - logit_bias (to be supported by vLLM engine)
     """
-    logger.info(f"Received completion request: {request}")
+    logger.info("[infer] Received completion request: {}".format(request))
 
     error_check_ret = await check_model(request)
     if error_check_ret is not None:
