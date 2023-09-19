@@ -9,7 +9,10 @@ RUN pip install pip -U -i https://mirrors.aliyun.com/pypi/simple/ \
 # COPY ./opt-125m/ /tmp/opt-125m/
 # RUN pip install ray pandas -i https://mirrors.aliyun.com/pypi/simple/
 
-COPY . /home/server/
+COPY . /home/vllm/
+RUN pip install pip -U -i https://mirrors.aliyun.com/pypi/simple/ \
+    && cd /home/vllm/ \
+    && pip install -e . -i https://mirrors.aliyun.com/pypi/simple/
 
 WORKDIR /home/server
 
