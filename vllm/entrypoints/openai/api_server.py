@@ -826,7 +826,7 @@ async def infer(request: TaichuRequest, raw_request: Request):
         yield json.dumps({"full_context": full_input + generated_text,
                           'query': request.input_text,
                           'answer': generated_text,
-                          'token_nums': 0
+                          'token_nums': generated_index
                           },
                          ensure_ascii=False)
 
