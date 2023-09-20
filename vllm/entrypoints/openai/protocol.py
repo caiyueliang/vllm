@@ -160,6 +160,13 @@ class CompletionStreamResponse(BaseModel):
     choices: List[CompletionResponseStreamChoice]
 
 
+class TaichuStreamResponse(BaseModel):
+    id: str = Field(default_factory=lambda: f"cmpl-{random_uuid()}")
+    object: str = "taichu_infer"
+    created: int = Field(default_factory=lambda: int(time.time()))
+    choices: List[CompletionResponseStreamChoice]
+
+
 class ChatMessage(BaseModel):
     role: str
     content: str

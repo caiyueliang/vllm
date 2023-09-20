@@ -31,7 +31,7 @@ from vllm.outputs import RequestOutput
 from vllm.sampling_params import SamplingParams
 from vllm.transformers_utils.tokenizer import get_tokenizer
 from vllm.utils import random_uuid
-from vllm.entrypoints.openai.protocol import TaichuRequest
+from vllm.entrypoints.openai.protocol import TaichuRequest, TaichuStreamResponse
 
 try:
     import fastchat
@@ -631,7 +631,7 @@ def preprocess_prompt(input_text, context):
     """ prompt 预处理 """
     full_input = context + '\n' + "###问题：\n" + input_text + "\n\n" + "###答案："
     prompt = shink_input_size(full_input=full_input, max_prompt_size=COMPLETION_MAX_PROMPT, prefix=DEFAULT_PREFIX)
-    return prompt
+    return full_input, prompt
 
 
 @app.post("/")
@@ -676,8 +676,9 @@ async def infer(request: TaichuRequest, raw_request: Request):
 
     use_token_ids = False
     # TODO: prompt 预处理
-    prompt = preprocess_prompt(input_text=request.input_text, context=request.context)
-    logger.warning("[infer] prompt: {}".format(prompt))
+    full_input, prompt = preprocess_prompt(input_text=request.input_text, context=request.context)
+    # logger.warning("[infer] prompt: {}".format(prompt))
+
     # if isinstance(request.prompt, list):
     #     if len(request.prompt) == 0:
     #         return create_error_response(HTTPStatus.BAD_REQUEST,
@@ -757,10 +758,9 @@ async def infer(request: TaichuRequest, raw_request: Request):
             logprobs=logprobs,
             finish_reason=finish_reason,
         )
-        response = CompletionStreamResponse(
+        response = TaichuStreamResponse(
             id=request_id,
             created=created_time,
-            model=model_name,
             choices=[choice_data],
         )
         response_json = response.json(ensure_ascii=False)
@@ -816,7 +816,7 @@ async def infer(request: TaichuRequest, raw_request: Request):
         #                                                          add_special_tokens=False)["input_ids"])
         #                   },
         #                  ensure_ascii=False)
-        yield json.dumps({"full_context": prompt + generated_text,
+        yield json.dumps({"full_context": full_input + generated_text,
                           'query': request.input_text,
                           'answer': generated_text,
                           'token_nums': 0
