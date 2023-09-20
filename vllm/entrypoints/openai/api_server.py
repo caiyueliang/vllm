@@ -651,9 +651,9 @@ async def infer(request: TaichuRequest, raw_request: Request):
     # logger.warning("[infer] {} {}".format(request.input_text, request.context))
     logger.warning("[infer] Received completion request: {}".format(request))
 
-    error_check_ret = await check_model(request)
-    if error_check_ret is not None:
-        return error_check_ret
+    # error_check_ret = await check_model(request)
+    # if error_check_ret is not None:
+    #     return error_check_ret
 
     if request.echo:
         # We do not support echo since the vLLM engine does not
