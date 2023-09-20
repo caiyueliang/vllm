@@ -19,6 +19,9 @@ fi
 if [ -z "$TENSOR_PARALLEL_SIZE" ]; then
     export TENSOR_PARALLEL_SIZE=1
 fi
+if [ -z "$COMPLETION_MAX_PROMPT" ]; then
+    export COMPLETION_MAX_PROMPT=14000
+fi
 
 echo "================================================"
 echo "[MODEL_PATH] = ${MODEL_PATH}"
@@ -28,6 +31,7 @@ echo "[BLOCK_SIZE] = ${BLOCK_SIZE}"
 echo "[GPU_MEMORY_UTILIZATION] = ${GPU_MEMORY_UTILIZATION}"
 echo "[PIPELINE_PARALLEL_SIZE] = ${PIPELINE_PARALLEL_SIZE}"
 echo "[TENSOR_PARALLEL_SIZE] = ${TENSOR_PARALLEL_SIZE}"
+echo "[COMPLETION_MAX_PROMPT] = ${COMPLETION_MAX_PROMPT}"
 echo "================================================"
 pip list
 echo "================================================"
