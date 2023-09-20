@@ -770,11 +770,14 @@ async def infer(request: TaichuRequest, raw_request: Request):
     async def completion_stream_generator() -> AsyncGenerator[str, None]:
         previous_texts = [""] * request.n
         previous_num_tokens = [0] * request.n
+
+        generated_text = ''
         async for res in result_generator:
             res: RequestOutput
             for output in res.outputs:
                 i = output.index
                 delta_text = output.text[len(previous_texts[i]):]
+                generated_text += delta_text
                 if request.logprobs is not None:
                     logprobs = create_logprobs(
                         output.token_ids[previous_num_tokens[i]:],
@@ -782,6 +785,7 @@ async def infer(request: TaichuRequest, raw_request: Request):
                         len(previous_texts[i]))
                 else:
                     logprobs = None
+
                 previous_texts[i] = output.text
                 previous_num_tokens[i] = len(output.token_ids)
                 response_json = create_stream_response_json(
@@ -789,7 +793,9 @@ async def infer(request: TaichuRequest, raw_request: Request):
                     text=delta_text,
                     logprobs=logprobs,
                 )
-                yield f"data: {response_json}\n\n"
+                logger.warning("[completion_stream_generator] index: {}, text: {}".format(i, delta_text))
+                yield f"{response_json}\n"
+
                 if output.finish_reason is not None:
                     logprobs = (LogProbs()
                                 if request.logprobs is not None else None)
@@ -799,8 +805,22 @@ async def infer(request: TaichuRequest, raw_request: Request):
                         logprobs=logprobs,
                         finish_reason=output.finish_reason,
                     )
-                    yield f"data: {response_json}\n\n"
-        yield "data: [DONE]\n\n"
+                    yield f"{response_json}\n"
+        # yield "[DONE]\n"
+        # yield json.dumps({"full_context": prompt + generated_text,
+        #                   'query': request.input_text,
+        #                   'answer': generated_text,
+        #                   'token_nums': len(chat_model.tokenizer(qa_text,
+        #                                                          return_tensors=None,
+        #                                                          add_special_tokens=False)["input_ids"])
+        #                   },
+        #                  ensure_ascii=False)
+        yield json.dumps({"full_context": prompt + generated_text,
+                          'query': request.input_text,
+                          'answer': generated_text,
+                          'token_nums': 0
+                          },
+                         ensure_ascii=False)
 
     # Streaming response
     if stream:
