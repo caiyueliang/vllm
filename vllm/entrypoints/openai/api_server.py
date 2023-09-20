@@ -1,6 +1,7 @@
 # Adapted from
 # https://github.com/lm-sys/FastChat/blob/168ccc29d3f7edc50823016105c024fe2282732a/fastchat/serve/openai_api_server.py
 
+import os
 import argparse
 import asyncio
 import json
@@ -574,8 +575,61 @@ async def create_completion(request: CompletionRequest, raw_request: Request):
     return response
 
 
+# Completion-related arguments:
+COMPLETION_MAX_PROMPT = int(os.getenv("COMPLETION_MAX_PROMPT", "14000"))
+
+DEFAULT_PREFIX = (
+        "我是由武汉人工智能研究院研发的多模态AI助手，我的名字叫小初。我可以帮你做很多事情哦，例如:\n\n"
+        "1. 回答各种类型的问题：历史、科学、文化、娱乐、体育等各种主题的问题，并提供详细的答案和解释。\n"
+        "2. 提供建议和信息：根据用户的需求和兴趣，提供各种类型的建议和信息，例如旅游、购物、健康、职业发展等方面的建议。\n"
+        "3. 文本创作：生成各种类型的文本，例如诗歌、小说、新闻、电子邮件、商业文案等等。\n"
+        "4. 聊天和交流：我可以与用户进行自然而流畅的对话和交流，帮助用户解决问题、获取信息或者进行娱乐。\n"
+        "5. 生成图片：我可以根据用户的文字描述，生成符合要求的图片或画作。\n"
+        "总之，我可以用自然语言与人类进行交流，并为他们提供各种类型的帮助和服务。无论用户需要什么类型的信息或者帮助，我都会尽力满足他们的需求。\n\n"
+        "接下来请开始向我提问吧。\n\n"
+    )
+
+
+def shink_input_size(full_input, max_prompt_size, prefix):
+    """ 如果 inputs + full_input 的长度 > max_prompt_size
+        对 full_input进行截断，缩减到 max_prompt_size 以内
+    """
+
+    header = "{prefix}{instruction}"
+
+    inputs = header.format_map({"instruction": full_input, "prefix": prefix})
+
+    if len(inputs) < max_prompt_size:
+        return inputs
+    else:
+        logger.warning("[shink_input_size] prompt size large than {}".format(max_prompt_size))
+        delta = len(inputs) - max_prompt_size
+
+        full_input_list = full_input.split("###问题")
+        full_input_list = [i for i in full_input_list if i != '']
+        full_input_list = ["###问题" + i for i in full_input_list]
+
+        delete_sum = 0
+        delete_round = 0
+        while delete_sum < delta and len(full_input_list) > 1:
+            delete_sum += len(full_input_list[0])
+            full_input_list.pop(0)
+            delete_round += 1
+
+        truncated_full_input = "".join(full_input_list)
+        result = header.format_map({"instruction": truncated_full_input,
+                                    "prefix": prefix})
+
+        logger.warning("[shink_input_size] prompt size shink to {} after delete {} formal round".format(
+            len(result), delete_round))
+
+        return result
+
+
 def preprocess_prompt(input_text, context):
+    """ prompt 预处理 """
     full_input = context + '\n' + "###问题：\n" + input_text + "\n\n" + "###答案："
+    shink_input_size(full_input=full_input, max_prompt_size=COMPLETION_MAX_PROMPT, prefix=DEFAULT_PREFIX)
     return full_input
 
 
@@ -622,7 +676,7 @@ async def infer(request: TaichuRequest, raw_request: Request):
     request_id = f"cmpl-{random_uuid()}"
 
     use_token_ids = False
-    # TODO: prompt
+    # TODO: prompt 预处理
     prompt = preprocess_prompt(input_text=request.input_text, context=request.context)
     logger.warning("[infer] prompt: {}".format(prompt))
     # if isinstance(request.prompt, list):
