@@ -1,5 +1,5 @@
 if [ -z "$MODEL_PATH" ]; then
-    export MODEL_PATH="/tmp/opt-125m"
+    export MODEL_PATH="/llm-data/0906"
 fi
 if [ -z "$DATA_TYPE" ]; then
     export DATA_TYPE="auto"
@@ -39,7 +39,7 @@ echo "================================================"
 python -m vllm.entrypoints.openai.api_server \
     --trust-remote-code \
     --gpu-memory-utilization ${GPU_MEMORY_UTILIZATION} \
-    --seed 1 \
+    --seed 0 \
     --block-size ${BLOCK_SIZE} \
     --max-num-seqs ${MAX_NUM_SEQS} \
     --model ${MODEL_PATH} \
