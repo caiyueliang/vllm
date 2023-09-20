@@ -648,8 +648,7 @@ async def infer(request: TaichuRequest, raw_request: Request):
           suffix)
         - logit_bias (to be supported by vLLM engine)
     """
-    # logger.warning("[infer] {} {}".format(request.input_text, request.context))
-    logger.warning("[infer] Received completion request: {}".format(request))
+    logger.info("[infer] Received completion request: {}".format(request))
 
     # error_check_ret = await check_model(request)
     # if error_check_ret is not None:
@@ -677,26 +676,7 @@ async def infer(request: TaichuRequest, raw_request: Request):
     use_token_ids = False
     # TODO: prompt 预处理
     full_input, prompt = preprocess_prompt(input_text=request.input_text, context=request.context)
-    # logger.warning("[infer] prompt: {}".format(prompt))
-
-    # if isinstance(request.prompt, list):
-    #     if len(request.prompt) == 0:
-    #         return create_error_response(HTTPStatus.BAD_REQUEST,
-    #                                      "please provide at least one prompt")
-    #     first_element = request.prompt[0]
-    #     if isinstance(first_element, int):
-    #         use_token_ids = True
-    #         prompt = request.prompt
-    #     elif isinstance(first_element, (str, list)):
-    #         # TODO: handles multiple prompt case in list[list[int]]
-    #         if len(request.prompt) > 1:
-    #             return create_error_response(
-    #                 HTTPStatus.BAD_REQUEST,
-    #                 "multiple prompts in a batch is not currently supported")
-    #         use_token_ids = not isinstance(first_element, str)
-    #         prompt = request.prompt[0]
-    # else:
-    #     prompt = request.prompt
+    # logger.info("[infer] prompt: {}".format(prompt))
 
     # 判断 token_num + request.max_tokens > max_model_len
     if use_token_ids:
@@ -706,8 +686,8 @@ async def infer(request: TaichuRequest, raw_request: Request):
 
     # 不报错，提示warning
     if error_check_ret is not None:
-        logger.warning("[infer] {}".format(error_check_ret))
-        # return error_check_ret
+        logger.warning("[infer] error_check_ret: {}".format(error_check_ret.body))
+        return error_check_ret
 
     created_time = int(time.time())
     try:
