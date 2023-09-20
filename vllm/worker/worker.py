@@ -2,6 +2,7 @@
 import os
 from typing import Dict, List, Tuple, Optional
 
+import logging
 import torch
 import torch.distributed
 
@@ -14,6 +15,9 @@ from vllm.sampling_params import SamplingParams
 from vllm.sequence import SamplerOutput, SequenceData, SequenceGroupMetadata
 from vllm.worker.cache_engine import CacheEngine
 from vllm.utils import get_gpu_memory
+
+
+logger = logging.getLogger()
 
 
 class Worker:
@@ -63,6 +67,7 @@ class Worker:
                                       self.distributed_init_method)
 
         # Initialize the model.
+        logger.warning("[init_model] model_config: {}".format(self.model_config))
         set_random_seed(self.model_config.seed)
         self.model = get_model(self.model_config)
 
