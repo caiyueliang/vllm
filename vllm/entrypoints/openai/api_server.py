@@ -577,6 +577,7 @@ async def create_completion(request: CompletionRequest, raw_request: Request):
 
 # Completion-related arguments:
 COMPLETION_MAX_PROMPT = int(os.getenv("COMPLETION_MAX_PROMPT", "14000"))
+MODEL_PATH = os.environ["MODEL_PATH"]
 
 DEFAULT_PREFIX = (
         "我是由武汉人工智能研究院研发的多模态AI助手，我的名字叫小初。我可以帮你做很多事情哦，例如:\n\n"
@@ -670,9 +671,7 @@ async def infer(request: TaichuRequest, raw_request: Request):
         return create_error_response(HTTPStatus.BAD_REQUEST,
                                      "logit_bias is not currently supported")
 
-
-
-    model_name = request.model
+    model_name = MODEL_PATH
     request_id = f"cmpl-{random_uuid()}"
 
     use_token_ids = False
@@ -704,6 +703,7 @@ async def infer(request: TaichuRequest, raw_request: Request):
     else:
         token_ids, error_check_ret = await check_length(request, prompt=prompt)
 
+    # 不报错，提示warning
     if error_check_ret is not None:
         logger.warning("[infer] {}".format(error_check_ret))
         # return error_check_ret
