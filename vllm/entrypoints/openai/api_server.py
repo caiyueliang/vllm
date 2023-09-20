@@ -31,7 +31,7 @@ from vllm.outputs import RequestOutput
 from vllm.sampling_params import SamplingParams
 from vllm.transformers_utils.tokenizer import get_tokenizer
 from vllm.utils import random_uuid
-from vllm.entrypoints.openai.protocol import TaichuRequest, TaichuStreamResponse
+from vllm.entrypoints.openai.protocol import TaichuRequest, TaichuResponse, TaichuStreamResponse
 
 try:
     import fastchat
@@ -719,7 +719,7 @@ async def infer(request: TaichuRequest, raw_request: Request):
 
     # Similar to the OpenAI API, when n != best_of, we do not stream the
     # results. In addition, we do not stream the results when use beam search.
-    stream = (request.stream
+    stream = (request.do_stream
               and (request.best_of is None or request.n == request.best_of)
               and not request.use_beam_search)
 
@@ -844,10 +844,9 @@ async def infer(request: TaichuRequest, raw_request: Request):
         completion_tokens=num_generated_tokens,
         total_tokens=num_prompt_tokens + num_generated_tokens,
     )
-    response = CompletionResponse(
+    response = TaichuResponse(
         id=request_id,
         created=created_time,
-        model=model_name,
         choices=choices,
         usage=usage,
     )

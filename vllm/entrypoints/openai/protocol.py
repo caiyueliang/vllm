@@ -107,7 +107,7 @@ class TaichuRequest(BaseModel):
     temperature: Optional[float] = 1.0
     top_p: Optional[float] = 1.0
     n: Optional[int] = 1
-    stream: Optional[bool] = False
+    do_stream: Optional[bool] = True
     logprobs: Optional[int] = None
     echo: Optional[bool] = False
     stop: Optional[Union[str, List[str]]] = Field(default_factory=list)
@@ -160,13 +160,6 @@ class CompletionStreamResponse(BaseModel):
     choices: List[CompletionResponseStreamChoice]
 
 
-class TaichuStreamResponse(BaseModel):
-    id: str = Field(default_factory=lambda: f"cmpl-{random_uuid()}")
-    object: str = "taichu_infer"
-    created: int = Field(default_factory=lambda: int(time.time()))
-    choices: List[CompletionResponseStreamChoice]
-
-
 class ChatMessage(BaseModel):
     role: str
     content: str
@@ -204,3 +197,18 @@ class ChatCompletionStreamResponse(BaseModel):
     created: int = Field(default_factory=lambda: int(time.time()))
     model: str
     choices: List[ChatCompletionResponseStreamChoice]
+
+
+class TaichuStreamResponse(BaseModel):
+    id: str = Field(default_factory=lambda: f"cmpl-{random_uuid()}")
+    object: str = "taichu_infer"
+    created: int = Field(default_factory=lambda: int(time.time()))
+    choices: List[CompletionResponseStreamChoice]
+
+
+class TaichuResponse(BaseModel):
+    id: str = Field(default_factory=lambda: f"cmpl-{random_uuid()}")
+    object: str = "taichu_infer"
+    created: int = Field(default_factory=lambda: int(time.time()))
+    choices: List[CompletionResponseChoice]
+    usage: UsageInfo
