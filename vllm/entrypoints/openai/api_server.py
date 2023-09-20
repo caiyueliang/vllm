@@ -629,8 +629,8 @@ def shink_input_size(full_input, max_prompt_size, prefix):
 def preprocess_prompt(input_text, context):
     """ prompt 预处理 """
     full_input = context + '\n' + "###问题：\n" + input_text + "\n\n" + "###答案："
-    shink_input_size(full_input=full_input, max_prompt_size=COMPLETION_MAX_PROMPT, prefix=DEFAULT_PREFIX)
-    return full_input
+    prompt = shink_input_size(full_input=full_input, max_prompt_size=COMPLETION_MAX_PROMPT, prefix=DEFAULT_PREFIX)
+    return prompt
 
 
 @app.post("/")
