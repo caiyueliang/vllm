@@ -595,8 +595,7 @@ async def infer(request: TaichuRequest, raw_request: Request):
     """
     # logger.warning("[infer] {} {}".format(request.input_text, request.context))
     logger.warning("[infer] Received completion request: {}".format(request))
-    if request.prompt is None:
-        request.prompt = preprocess_prompt(input_text=request.input_text, context=request.context)
+    request.prompt = preprocess_prompt(input_text=request.input_text, context=request.context)
     logger.warning("[infer] Received completion request: {}".format(request))
 
     error_check_ret = await check_model(request)

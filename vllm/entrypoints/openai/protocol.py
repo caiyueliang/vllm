@@ -99,7 +99,7 @@ class CompletionRequest(BaseModel):
 class TaichuRequest(BaseModel):
     model: str
     # a string, array of strings, array of tokens, or array of token arrays
-    prompt: Union[List[int], List[List[int]], str, List[str]]
+    # prompt: Union[List[int], List[List[int]], str, List[str]]
     input_text: Union[List[int], List[List[int]], str, List[str]]
     context: Union[List[int], List[List[int]], str, List[str]]
     suffix: Optional[str] = None
