@@ -265,8 +265,8 @@ class LLMEngine:
         seq_group = SequenceGroup(request_id, [seq], sampling_params,
                                   arrival_time)
 
-        logger.info("[add_request] prompt: {}; prompt_token_ids: {}; block_size: {}, seq_id: {}, seq_group: {}".format(
-            prompt, prompt_token_ids, block_size, seq_id, seq_group))
+        # logger.info("[add_request] prompt: {}; prompt_token_ids: {}; block_size: {}, seq_id: {}, seq_group: {}".format(
+        #     prompt, prompt_token_ids, block_size, seq_id, seq_group))
         # Add the sequence group to the scheduler.
         self.scheduler.add_seq_group(seq_group)
 
