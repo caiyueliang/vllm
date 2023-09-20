@@ -103,7 +103,8 @@ class TaichuRequest(BaseModel):
     input_text: Union[List[int], List[List[int]], str, List[str]]
     context: Union[List[int], List[List[int]], str, List[str]]
     suffix: Optional[str] = None
-    max_tokens: Optional[int] = 16
+    # max_tokens: Optional[int] = 16
+    max_length: Optional[int] = 1000
     temperature: Optional[float] = 1.0
     top_p: Optional[float] = 1.0
     n: Optional[int] = 1

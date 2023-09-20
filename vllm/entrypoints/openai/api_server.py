@@ -634,6 +634,33 @@ def preprocess_prompt(input_text, context):
     return full_input, prompt
 
 
+async def check_length_taichu(
+    request: Union[TaichuRequest],
+    prompt: Optional[str] = None,
+    prompt_ids: Optional[List[int]] = None
+) -> Tuple[List[int], Optional[JSONResponse]]:
+    assert (not (prompt is None and prompt_ids is None)
+            and not (prompt is not None and prompt_ids is not None)
+            ), "Either prompt or prompt_ids should be provided."
+    if prompt_ids is not None:
+        input_ids = prompt_ids
+    else:
+        input_ids = tokenizer(prompt).input_ids
+    token_num = len(input_ids)
+
+    if token_num + request.max_length > max_model_len:
+        return input_ids, create_error_response(
+            HTTPStatus.BAD_REQUEST,
+            f"This model's maximum context length is {max_model_len} tokens. "
+            f"However, you requested {request.max_length + token_num} tokens "
+            f"({token_num} in the messages, "
+            f"{request.max_length} in the completion). "
+            f"Please reduce the length of the messages or completion.",
+        )
+    else:
+        return input_ids, None
+
+
 @app.post("/")
 async def infer(request: TaichuRequest, raw_request: Request):
     """Completion API similar to OpenAI's API.
@@ -680,9 +707,9 @@ async def infer(request: TaichuRequest, raw_request: Request):
 
     # 判断 token_num + request.max_tokens > max_model_len
     if use_token_ids:
-        _, error_check_ret = await check_length(request, prompt_ids=prompt)
+        _, error_check_ret = await check_length_taichu(request, prompt_ids=prompt)
     else:
-        token_ids, error_check_ret = await check_length(request, prompt=prompt)
+        token_ids, error_check_ret = await check_length_taichu(request, prompt=prompt)
 
     # 不报错，提示warning
     if error_check_ret is not None:
@@ -701,7 +728,7 @@ async def infer(request: TaichuRequest, raw_request: Request):
             top_k=request.top_k,
             stop=request.stop,
             ignore_eos=request.ignore_eos,
-            max_tokens=request.max_tokens,
+            max_tokens=request.max_length,
             logprobs=request.logprobs,
             use_beam_search=request.use_beam_search,
         )
