@@ -595,8 +595,6 @@ async def infer(request: TaichuRequest, raw_request: Request):
     """
     # logger.warning("[infer] {} {}".format(request.input_text, request.context))
     logger.warning("[infer] Received completion request: {}".format(request))
-    request.prompt = preprocess_prompt(input_text=request.input_text, context=request.context)
-    logger.warning("[infer] Received completion request: {}".format(request))
 
     error_check_ret = await check_model(request)
     if error_check_ret is not None:
@@ -618,28 +616,33 @@ async def infer(request: TaichuRequest, raw_request: Request):
         return create_error_response(HTTPStatus.BAD_REQUEST,
                                      "logit_bias is not currently supported")
 
+
+
     model_name = request.model
     request_id = f"cmpl-{random_uuid()}"
 
     use_token_ids = False
-    if isinstance(request.prompt, list):
-        if len(request.prompt) == 0:
-            return create_error_response(HTTPStatus.BAD_REQUEST,
-                                         "please provide at least one prompt")
-        first_element = request.prompt[0]
-        if isinstance(first_element, int):
-            use_token_ids = True
-            prompt = request.prompt
-        elif isinstance(first_element, (str, list)):
-            # TODO: handles multiple prompt case in list[list[int]]
-            if len(request.prompt) > 1:
-                return create_error_response(
-                    HTTPStatus.BAD_REQUEST,
-                    "multiple prompts in a batch is not currently supported")
-            use_token_ids = not isinstance(first_element, str)
-            prompt = request.prompt[0]
-    else:
-        prompt = request.prompt
+    # TODO: prompt
+    prompt = preprocess_prompt(input_text=request.input_text, context=request.context)
+    logger.warning("[infer] prompt: {}".format(prompt))
+    # if isinstance(request.prompt, list):
+    #     if len(request.prompt) == 0:
+    #         return create_error_response(HTTPStatus.BAD_REQUEST,
+    #                                      "please provide at least one prompt")
+    #     first_element = request.prompt[0]
+    #     if isinstance(first_element, int):
+    #         use_token_ids = True
+    #         prompt = request.prompt
+    #     elif isinstance(first_element, (str, list)):
+    #         # TODO: handles multiple prompt case in list[list[int]]
+    #         if len(request.prompt) > 1:
+    #             return create_error_response(
+    #                 HTTPStatus.BAD_REQUEST,
+    #                 "multiple prompts in a batch is not currently supported")
+    #         use_token_ids = not isinstance(first_element, str)
+    #         prompt = request.prompt[0]
+    # else:
+    #     prompt = request.prompt
 
     if use_token_ids:
         _, error_check_ret = await check_length(request, prompt_ids=prompt)
