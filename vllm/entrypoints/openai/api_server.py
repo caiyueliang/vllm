@@ -57,6 +57,7 @@ def create_error_response(status_code: HTTPStatus,
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):  # pylint: disable=unused-argument
+    logger.warning("[validation_exception_handler] exc: {}".format(str(exc)))
     return create_error_response(HTTPStatus.BAD_REQUEST, str(exc))
 
 
@@ -573,6 +574,11 @@ async def create_completion(request: CompletionRequest, raw_request: Request):
     return response
 
 
+def preprocess_prompt(input_text, context):
+    full_input = context + '\n' + "###问题：\n" + input_text + "\n\n" + "###答案："
+    return full_input
+
+
 @app.post("/")
 async def infer(request: TaichuRequest, raw_request: Request):
     """Completion API similar to OpenAI's API.
@@ -587,7 +593,11 @@ async def infer(request: TaichuRequest, raw_request: Request):
           suffix)
         - logit_bias (to be supported by vLLM engine)
     """
-    logger.info("[infer] Received completion request: {}".format(request))
+    # logger.warning("[infer] {} {}".format(request.input_text, request.context))
+    logger.warning("[infer] Received completion request: {}".format(request))
+    if request.prompt is None:
+        request.prompt = preprocess_prompt(input_text=request.input_text, context=request.context)
+    logger.warning("[infer] Received completion request: {}".format(request))
 
     error_check_ret = await check_model(request)
     if error_check_ret is not None:
