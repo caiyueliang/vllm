@@ -120,7 +120,7 @@ async def get_gen_prompt(request) -> str:
 
 
 async def check_length(
-    request: Union[ChatCompletionRequest, CompletionRequest],
+    request: Union[ChatCompletionRequest, CompletionRequest, TaichuRequest],
     prompt: Optional[str] = None,
     prompt_ids: Optional[List[int]] = None
 ) -> Tuple[List[int], Optional[JSONResponse]]:
@@ -698,12 +698,15 @@ async def infer(request: TaichuRequest, raw_request: Request):
     # else:
     #     prompt = request.prompt
 
+    # 判断 token_num + request.max_tokens > max_model_len
     if use_token_ids:
         _, error_check_ret = await check_length(request, prompt_ids=prompt)
     else:
         token_ids, error_check_ret = await check_length(request, prompt=prompt)
+
     if error_check_ret is not None:
-        return error_check_ret
+        logger.warning("[infer] {}".format(error_check_ret))
+        # return error_check_ret
 
     created_time = int(time.time())
     try:
