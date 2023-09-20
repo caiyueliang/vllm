@@ -112,7 +112,8 @@ class TaichuRequest(BaseModel):
     logprobs: Optional[int] = None
     echo: Optional[bool] = False
     stop: Optional[Union[str, List[str]]] = Field(default_factory=list)
-    presence_penalty: Optional[float] = 0.0
+    # presence_penalty: Optional[float] = 0.0
+    repetition_penalty: Optional[float] = 0.0
     frequency_penalty: Optional[float] = 0.0
     best_of: Optional[int] = None
     logit_bias: Optional[Dict[str, float]] = None

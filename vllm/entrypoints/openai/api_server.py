@@ -721,7 +721,7 @@ async def infer(request: TaichuRequest, raw_request: Request):
         sampling_params = SamplingParams(
             n=request.n,
             best_of=request.best_of,
-            presence_penalty=request.presence_penalty,
+            presence_penalty=request.repetition_penalty,
             frequency_penalty=request.frequency_penalty,
             temperature=request.temperature,
             top_p=request.top_p,
