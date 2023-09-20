@@ -851,7 +851,7 @@ async def infer(request: TaichuRequest, raw_request: Request):
         usage=usage,
     )
 
-    if request.stream:
+    if request.do_stream:
         # When user requests streaming but we don't stream, we still need to
         # return a streaming response with a single event.
         response_json = response.json(ensure_ascii=False)
