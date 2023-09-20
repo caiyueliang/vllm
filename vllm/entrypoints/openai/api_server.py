@@ -772,6 +772,7 @@ async def infer(request: TaichuRequest, raw_request: Request):
         previous_num_tokens = [0] * request.n
 
         generated_text = ''
+        generated_index = 0
         async for res in result_generator:
             res: RequestOutput
             for output in res.outputs:
@@ -789,24 +790,24 @@ async def infer(request: TaichuRequest, raw_request: Request):
                 previous_texts[i] = output.text
                 previous_num_tokens[i] = len(output.token_ids)
                 response_json = create_stream_response_json(
-                    index=i,
+                    index=generated_index,
                     text=delta_text,
                     logprobs=logprobs,
                 )
-                logger.warning("[completion_stream_generator] index: {}, text: {}".format(i, delta_text))
                 yield f"{response_json}\n"
 
                 if output.finish_reason is not None:
                     logprobs = (LogProbs()
                                 if request.logprobs is not None else None)
                     response_json = create_stream_response_json(
-                        index=i,
+                        index=generated_index,
                         text="",
                         logprobs=logprobs,
                         finish_reason=output.finish_reason,
                     )
                     yield f"{response_json}\n"
-        # yield "[DONE]\n"
+
+                generated_index += 1
         # yield json.dumps({"full_context": prompt + generated_text,
         #                   'query': request.input_text,
         #                   'answer': generated_text,
