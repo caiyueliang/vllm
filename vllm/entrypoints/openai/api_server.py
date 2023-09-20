@@ -807,7 +807,7 @@ async def infer(request: TaichuRequest, raw_request: Request):
                     logprobs = (LogProbs()
                                 if request.logprobs is not None else None)
                     response_json = create_stream_response_json(
-                        index=generated_index,
+                        index=generated_index+1,
                         text="",
                         logprobs=logprobs,
                         finish_reason=output.finish_reason,
