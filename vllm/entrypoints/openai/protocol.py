@@ -16,6 +16,11 @@ class ErrorResponse(BaseModel):
     code: Optional[str] = None
 
 
+class TaichuErrorResponse(BaseModel):
+    message: str
+    result: dict = {}
+    status: int = 0
+
 class ModelPermission(BaseModel):
     id: str = Field(default_factory=lambda: f"modelperm-{random_uuid()}")
     object: str = "model_permission"

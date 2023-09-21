@@ -31,7 +31,7 @@ from vllm.outputs import RequestOutput
 from vllm.sampling_params import SamplingParams
 from vllm.transformers_utils.tokenizer import get_tokenizer
 from vllm.utils import random_uuid
-from vllm.entrypoints.openai.protocol import TaichuRequest, TaichuResponse, TaichuStreamResponse
+from vllm.entrypoints.openai.protocol import TaichuRequest, TaichuResponse, TaichuStreamResponse, TaichuErrorResponse
 
 try:
     import fastchat
@@ -55,6 +55,9 @@ def create_error_response(status_code: HTTPStatus,
                                       type="invalid_request_error").dict(),
                         status_code=status_code.value)
 
+
+def create_taichu_error_response(status_code: HTTPStatus, message: str) -> JSONResponse:
+    return JSONResponse(TaichuErrorResponse(message=message, status_code=1).dict(), status_code=status_code.value)
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):  # pylint: disable=unused-argument
@@ -652,13 +655,8 @@ async def check_length_taichu(
     # TODO
     # if token_num + request.max_length > max_model_len:
     if token_num > max_model_len:
-        return input_ids, create_error_response(
-            HTTPStatus.BAD_REQUEST,
-            f"This model's maximum context length is {max_model_len} tokens. "
-            f"However, you requested {request.max_length + token_num} tokens "
-            f"({token_num} in the messages, "
-            f"{request.max_length} in the completion). "
-            f"Please reduce the length of the messages or completion.",
+        return input_ids, create_taichu_error_response(
+            status_code=HTTPStatus.OK, message="输入的文本长度过长，请重新输入",
         )
     else:
         return input_ids, None
