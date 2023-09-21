@@ -630,17 +630,6 @@ def shink_input_size(full_input, max_prompt_size, prefix):
         return result, truncated_full_input
 
 
-# def preprocess_prompt(input_text, context, rewrited_input_text):
-#     """ prompt 预处理 """
-#     full_input = context + '\n' + "###问题：\n" + input_text + "\n\n" + "###答案："
-#     if rewrited_input_text is not None and rewrited_input_text != "":
-#         rewrited_full_input = context + '\n' + "###问题：\n" + rewrited_input_text + "\n\n" + "###答案："
-#
-#     prompt, full_input = shink_input_size(
-#         full_input=full_input, max_prompt_size=COMPLETION_MAX_PROMPT, prefix=DEFAULT_PREFIX)
-#     return full_input, prompt
-
-
 async def check_length_taichu(
     request: Union[TaichuRequest],
     prompt: Optional[str] = None,
@@ -705,18 +694,15 @@ async def infer(request: TaichuRequest, raw_request: Request):
 
     use_token_ids = False
     # TODO: prompt 预处理
-    # full_input, prompt = preprocess_prompt(input_text=request.input_text,
-    #                                        context=request.context,
-    #                                        rewrited_input_text=request.rewrited_input_text)
     input_text = request.input_text
     context = request.context
     prefix = request.prefix if request.prefix is not None and request.prefix != "" else DEFAULT_PREFIX
     rewrited_input_text = request.rewrited_input_text \
         if request.rewrited_input_text is not None and request.rewrited_input_text != "" else request.input_text
 
-    logger.info("[infer] input_text: {}".format(input_text))
-    logger.info("[infer] input_context: {}".format(context))
-    logger.info("[infer] rewrited_input_text: {}".format(rewrited_input_text))
+    logger.warning("[infer] input_text: {}".format(input_text))
+    logger.warning("[infer] input_context: {}".format(context))
+    logger.warning("[infer] rewrited_input_text: {}".format(rewrited_input_text))
     full_input = context + '\n' + "###问题：\n" + input_text + "\n\n" + "###答案："
     rewrited_full_input = context + '\n' + "###问题：\n" + rewrited_input_text + "\n\n" + "###答案："
 
