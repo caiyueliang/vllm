@@ -601,9 +601,9 @@ def shink_input_size(full_input, max_prompt_size, prefix):
     inputs = header.format_map({"instruction": full_input, "prefix": prefix})
 
     if len(inputs) < max_prompt_size:
-        return inputs
+        return inputs, full_input
     else:
-        logger.warning("[shink_input_size] prompt size large than {}".format(max_prompt_size))
+        logger.warning("[shink_input_size] prompt size: {} large than {}".format(len(inputs), max_prompt_size))
         delta = len(inputs) - max_prompt_size
 
         full_input_list = full_input.split("###问题")
@@ -624,13 +624,14 @@ def shink_input_size(full_input, max_prompt_size, prefix):
         logger.warning("[shink_input_size] prompt size shink to {} after delete {} formal round".format(
             len(result), delete_round))
 
-        return result
+        return result, truncated_full_input
 
 
 def preprocess_prompt(input_text, context):
     """ prompt 预处理 """
     full_input = context + '\n' + "###问题：\n" + input_text + "\n\n" + "###答案："
-    prompt = shink_input_size(full_input=full_input, max_prompt_size=COMPLETION_MAX_PROMPT, prefix=DEFAULT_PREFIX)
+    prompt, full_input = shink_input_size(
+        full_input=full_input, max_prompt_size=COMPLETION_MAX_PROMPT, prefix=DEFAULT_PREFIX)
     return full_input, prompt
 
 
