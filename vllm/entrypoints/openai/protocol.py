@@ -106,7 +106,9 @@ class TaichuRequest(BaseModel):
     # a string, array of strings, array of tokens, or array of token arrays
     # prompt: Union[List[int], List[List[int]], str, List[str]]
     input_text: Union[List[int], List[List[int]], str, List[str]]
-    context: Union[List[int], List[List[int]], str, List[str]]
+    context: Union[List[int], List[List[int]], str, List[str]] = ""
+    rewrited_input_text: Optional[str] = ""
+    prefix: Optional[str] = ""
     suffix: Optional[str] = None
     # max_tokens: Optional[int] = 16
     max_length: Optional[int] = 1000
