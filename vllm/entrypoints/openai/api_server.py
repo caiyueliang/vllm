@@ -57,7 +57,7 @@ def create_error_response(status_code: HTTPStatus,
 
 
 def create_taichu_error_response(status_code: HTTPStatus, message: str) -> JSONResponse:
-    return JSONResponse(TaichuErrorResponse(message=message, status_code=1).dict(), status_code=status_code.value)
+    return JSONResponse(TaichuErrorResponse(message=message, status=1).dict(), status_code=status_code.value)
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):  # pylint: disable=unused-argument
