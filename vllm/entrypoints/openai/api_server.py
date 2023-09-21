@@ -717,7 +717,7 @@ async def infer(request: TaichuRequest, raw_request: Request):
     # 不报错，提示warning
     if error_check_ret is not None:
         logger.warning("[infer] error_check_ret: {}".format(error_check_ret.body))
-        # return error_check_ret
+        return error_check_ret
 
     created_time = int(time.time())
     try:
