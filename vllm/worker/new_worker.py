@@ -69,7 +69,7 @@ class Worker:
         # Initialize the model.
         logger.warning("[init_model] model_config: {}".format(self.model_config.__dict__))
         set_random_seed(self.model_config.seed)
-        self.model = get_model_new(self.model_config)
+        self.model = get_model_new(self.model_config.model)
 
 
     @torch.inference_mode()

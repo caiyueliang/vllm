@@ -96,8 +96,8 @@ def get_model_new(name_or_path,
                              "(Refer:https://mp.weixin.qq.com/s/qA6rdFUPmPsd4elxGnNf2A)"))
         if use_flash_attn:
             model_init_kwargs['use_flash_attn'] = True
-        logging.warning("model_init_kwargs: {}".format(model_init_kwargs))
 
+        logging.warning("[get_model_new] model_init_kwargs: {}".format(model_init_kwargs))
         model = AutoModelForCausalLM.from_pretrained(**model_init_kwargs)
 
         # tokenizer = AutoTokenizer.from_pretrained(name_or_path,
