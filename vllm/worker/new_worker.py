@@ -15,7 +15,7 @@ from vllm.sampling_params import SamplingParams
 from vllm.sequence import SamplerOutput, SequenceData, SequenceGroupMetadata
 from vllm.worker.cache_engine import CacheEngine
 from vllm.utils import get_gpu_memory
-
+from vllm.model_executor.model_loader import get_model_new
 
 logger = logging.getLogger()
 
@@ -67,9 +67,10 @@ class Worker:
                                       self.distributed_init_method)
 
         # Initialize the model.
-        logger.warning("[init_model] model_config: {}".format(self.model_config))
+        logger.warning("[init_model] model_config: {}".format(self.model_config.__dict__))
         set_random_seed(self.model_config.seed)
-        self.model = get_model(self.model_config)
+        self.model = get_model_new(self.model_config)
+
 
     @torch.inference_mode()
     def profile_num_available_blocks(

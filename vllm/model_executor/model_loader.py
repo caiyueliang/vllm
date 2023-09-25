@@ -1,5 +1,6 @@
 """Utilities for selecting and loading models."""
 import contextlib
+import logging
 from typing import Type
 
 import torch
@@ -67,3 +68,42 @@ def get_model(model_config: ModelConfig) -> nn.Module:
                                model_config.load_format)
             model = model.cuda()
     return model.eval()
+
+
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+
+def get_model_new(name_or_path,
+                 torch_dtype=torch.float16,
+                 use_flash_attn=False,
+                 max_input_len=2048,
+                 device_map='auto'):
+
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        device_num = torch.cuda.device_count() if torch.cuda.is_available() else 0
+        logging.warning("The number of gpus is {}".format(device_num))
+
+        model_init_kwargs = dict(
+            pretrained_model_name_or_path=name_or_path,
+            device_map=device_map,
+            trust_remote_code=True,
+            torch_dtype=torch_dtype
+        )
+        assert torch_dtype != torch.bfloat16, ("bfloat16 will cause error when use RoPE or "
+                                               "Alibi (Refer:https://mp.weixin.qq.com/s/qA6rdFUPmPsd4elxGnNf2A) ")
+        if torch_dtype == torch.float16:
+            logging.warning(("half precision may cause error when RoPE or Alibi is used "
+                             "(Refer:https://mp.weixin.qq.com/s/qA6rdFUPmPsd4elxGnNf2A)"))
+        if use_flash_attn:
+            model_init_kwargs['use_flash_attn'] = True
+        logging.warning("model_init_kwargs: {}".format(model_init_kwargs))
+
+        model = AutoModelForCausalLM.from_pretrained(**model_init_kwargs)
+
+        # tokenizer = AutoTokenizer.from_pretrained(name_or_path,
+        #                                                use_fast=False,
+        #                                                trust_remote_code=True,
+        #                                                truncation_side='left',
+        #                                                model_max_length=max_input_len)
+
+        return model
