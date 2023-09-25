@@ -118,8 +118,8 @@ class LLMEngine:
         # Lazy import the Worker to avoid importing torch.cuda/xformers
         # before CUDA_VISIBLE_DEVICES is set in the Worker
         # TODO: cyl
-        # from vllm.worker.worker import Worker  # pylint: disable=import-outside-toplevel
-        from vllm.worker.new_worker import Worker
+        from vllm.worker.worker import Worker  # pylint: disable=import-outside-toplevel
+        # from vllm.worker.new_worker import Worker
 
         assert self.parallel_config.world_size == 1, (
             "Ray is required if parallel_config.world_size > 1.")
@@ -143,8 +143,8 @@ class LLMEngine:
         # Lazy import the Worker to avoid importing torch.cuda/xformers
         # before CUDA_VISIBLE_DEVICES is set in the Worker
         # TODO: cyl
-        # from vllm.worker.worker import Worker  # pylint: disable=import-outside-toplevel
-        from vllm.worker.new_worker import Worker
+        from vllm.worker.worker import Worker  # pylint: disable=import-outside-toplevel
+        # from vllm.worker.new_worker import Worker
 
         self.workers: List[Worker] = []
         for bundle in placement_group.bundle_specs:
