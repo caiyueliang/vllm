@@ -645,7 +645,7 @@ async def check_length_taichu(
     token_num = len(input_ids)
 
     # TODO
-    # if token_num + request.max_length > max_model_len:
+    # if token_num + request.max_new_tokens > max_model_len:
     if token_num > max_model_len:
         return input_ids, create_taichu_error_response(
             status_code=HTTPStatus.OK, message="输入的文本长度过长，请重新输入",
@@ -733,7 +733,7 @@ async def infer(request: TaichuRequest, raw_request: Request):
             top_k=request.top_k,
             stop=request.stop,
             ignore_eos=request.ignore_eos,
-            max_tokens=request.max_length,
+            max_tokens=request.max_new_tokens,
             logprobs=request.logprobs,
             use_beam_search=request.use_beam_search,
         )
