@@ -92,6 +92,7 @@ async def check_length_taichu(
     if prompt_ids is not None:
         input_ids = prompt_ids
     else:
+        logger.warning("[check_length_taichu] tokenizer: {}; {}".format(tokenizer, type(tokenizer)))
         input_ids = tokenizer(prompt).input_ids
     token_num = len(input_ids)
 
