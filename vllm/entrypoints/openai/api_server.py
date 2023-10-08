@@ -119,7 +119,7 @@ async def get_gen_prompt(request) -> str:
 
 
 async def check_length(
-    request: Union[ChatCompletionRequest, CompletionRequest, TaichuRequest],
+    request: Union[ChatCompletionRequest, CompletionRequest],
     prompt: Optional[str] = None,
     prompt_ids: Optional[List[int]] = None
 ) -> Tuple[List[int], Optional[JSONResponse]]:
