@@ -48,6 +48,7 @@ served_model = None
 app = fastapi.FastAPI()
 engine = None
 tokenizer = None
+max_model_len = None
 import vllm.taichu
 
 
