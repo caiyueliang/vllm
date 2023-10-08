@@ -47,8 +47,6 @@ logger = init_logger(__name__)
 served_model = None
 app = fastapi.FastAPI()
 engine = None
-global tokenizer
-max_model_len = None
 
 
 def create_error_response(status_code: HTTPStatus,
@@ -959,7 +957,8 @@ if __name__ == "__main__":
                               trust_remote_code=engine_args.trust_remote_code)
 
     from vllm.taichu import api
-
+    from vllm.taichu.store.model_store import ModelStore
+    ModelStore(engine=engine, tokenizer=tokenizer, max_model_len=max_model_len)
     app.include_router(api.router)
 
     uvicorn.run(app,

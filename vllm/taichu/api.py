@@ -77,8 +77,9 @@ def shink_input_size(full_input, max_prompt_size, prefix):
         return result, truncated_full_input
 
 
-from vllm.entrypoints.openai.api_server import engine, tokenizer, max_model_len
+# from vllm.entrypoints.openai.api_server import engine, tokenizer, max_model_len
 from vllm.entrypoints.openai.api_server import create_logprobs, create_error_response, create_taichu_error_response
+from vllm.taichu.store.model_store import ModelStore
 
 
 async def check_length_taichu(
@@ -92,13 +93,13 @@ async def check_length_taichu(
     if prompt_ids is not None:
         input_ids = prompt_ids
     else:
-        logger.warning("[check_length_taichu] tokenizer: {}; {}".format(tokenizer, type(tokenizer)))
-        input_ids = tokenizer(prompt).input_ids
+        logger.warning("[check_length_taichu] tokenizer: {}; {}".format(ModelStore().tokenizer, type(ModelStore().tokenizer)))
+        input_ids = ModelStore().tokenizer(prompt).input_ids
     token_num = len(input_ids)
 
     # TODO
     # if token_num + request.max_new_tokens > max_model_len:
-    if token_num > max_model_len:
+    if token_num > ModelStore().max_model_len:
         return input_ids, create_taichu_error_response(
             status_code=HTTPStatus.OK, message="输入的文本长度过长，请重新输入",
         )
@@ -194,13 +195,13 @@ async def infer(request: TaichuRequest, raw_request: Request):
         return create_error_response(HTTPStatus.BAD_REQUEST, str(e))
 
     if use_token_ids:
-        result_generator = engine.generate(None,
-                                           sampling_params,
-                                           request_id,
-                                           prompt_token_ids=prompt)
+        result_generator = ModelStore().engine.generate(None,
+                                                        sampling_params,
+                                                        request_id,
+                                                        prompt_token_ids=prompt)
     else:
-        result_generator = engine.generate(prompt, sampling_params, request_id,
-                                           token_ids)
+        result_generator = ModelStore().engine.generate(prompt, sampling_params, request_id,
+                                                        token_ids)
 
     # Similar to the OpenAI API, when n != best_of, we do not stream the
     # results. In addition, we do not stream the results when use beam search.
@@ -209,7 +210,7 @@ async def infer(request: TaichuRequest, raw_request: Request):
               and not request.use_beam_search)
 
     async def abort_request() -> None:
-        await engine.abort(request_id)
+        await ModelStore().engine.abort(request_id)
 
     def create_stream_response_json(
         index: int,
@@ -273,14 +274,6 @@ async def infer(request: TaichuRequest, raw_request: Request):
                     yield f"{response_json}\n"
 
                 generated_index += 1
-        # yield json.dumps({"full_context": prompt + generated_text,
-        #                   'query': request.input_text,
-        #                   'answer': generated_text,
-        #                   'token_nums': len(chat_model.tokenizer(qa_text,
-        #                                                          return_tensors=None,
-        #                                                          add_special_tokens=False)["input_ids"])
-        #                   },
-        #                  ensure_ascii=False)
         yield json.dumps({"full_context": full_input + generated_text,
                           'query': input_text,
                           'answer': generated_text,
