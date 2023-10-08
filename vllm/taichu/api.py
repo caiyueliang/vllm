@@ -20,14 +20,18 @@ from vllm.logger import init_logger
 from vllm.outputs import RequestOutput
 from vllm.sampling_params import SamplingParams
 from vllm.utils import random_uuid
-from vllm.entrypoints.openai.protocol import TaichuRequest, TaichuResponse, TaichuStreamResponse, TaichuErrorResponse
-from vllm.entrypoints.openai.api_server import create_logprobs, create_error_response, create_taichu_error_response
+from vllm.entrypoints.openai.api_server import create_logprobs, create_error_response
 from vllm.taichu.store.model_store import ModelStore
 from vllm.taichu.utils.utils import shink_input_size
+from vllm.taichu.utils.protocol import TaichuRequest, TaichuResponse, TaichuStreamResponse, TaichuErrorResponse
 from vllm.taichu.env import *
 
 logger = init_logger(__name__)
 router = APIRouter()
+
+
+def create_taichu_error_response(status_code: HTTPStatus, message: str) -> JSONResponse:
+    return JSONResponse(TaichuErrorResponse(message=message, status=1).dict(), status_code=status_code.value)
 
 
 async def check_length_taichu(
