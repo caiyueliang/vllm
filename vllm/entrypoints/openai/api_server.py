@@ -49,7 +49,9 @@ app = fastapi.FastAPI()
 engine = None
 tokenizer = None
 max_model_len = None
-import vllm.taichu
+
+from vllm.taichu import api
+app.include_router(api.router)
 
 
 def create_error_response(status_code: HTTPStatus,
