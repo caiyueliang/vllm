@@ -22,9 +22,6 @@ from vllm.sampling_params import SamplingParams
 from vllm.utils import random_uuid
 from vllm.entrypoints.openai.protocol import TaichuRequest, TaichuResponse, TaichuStreamResponse, TaichuErrorResponse
 
-from vllm.entrypoints.openai.api_server import engine, tokenizer, max_model_len
-from vllm.entrypoints.openai.api_server import create_logprobs, create_error_response, create_taichu_error_response
-
 logger = init_logger(__name__)
 router = APIRouter()
 
@@ -78,6 +75,10 @@ def shink_input_size(full_input, max_prompt_size, prefix):
             len(result), delete_round))
 
         return result, truncated_full_input
+
+
+from vllm.entrypoints.openai.api_server import engine, tokenizer, max_model_len
+from vllm.entrypoints.openai.api_server import create_logprobs, create_error_response, create_taichu_error_response
 
 
 async def check_length_taichu(
