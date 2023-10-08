@@ -105,7 +105,7 @@ async def check_length_taichu(
 
 
 # @app.post("/")
-@router.post("/")
+@router.post("/infer")
 async def infer(request: TaichuRequest, raw_request: Request):
     """Completion API similar to OpenAI's API.
 
