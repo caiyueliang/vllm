@@ -50,9 +50,6 @@ engine = None
 tokenizer = None
 max_model_len = None
 
-from vllm.taichu import api
-app.include_router(api.router)
-
 
 def create_error_response(status_code: HTTPStatus,
                           message: str) -> JSONResponse:
@@ -902,6 +899,8 @@ async def create_completion(request: CompletionRequest, raw_request: Request):
 #
 #     return response
 
+from vllm.taichu import api
+app.include_router(api.router)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
