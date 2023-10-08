@@ -48,7 +48,6 @@ served_model = None
 app = fastapi.FastAPI()
 engine = None
 global tokenizer
-tokenizer = None
 max_model_len = None
 
 
@@ -960,6 +959,7 @@ if __name__ == "__main__":
                               trust_remote_code=engine_args.trust_remote_code)
 
     from vllm.taichu import api
+
     app.include_router(api.router)
 
     uvicorn.run(app,
