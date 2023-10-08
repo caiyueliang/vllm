@@ -77,8 +77,7 @@ def shink_input_size(full_input, max_prompt_size, prefix):
         return result, truncated_full_input
 
 
-from vllm.entrypoints.openai.api_server import engine, max_model_len
-from vllm.entrypoints.openai import api_server
+from vllm.entrypoints.openai.api_server import engine, tokenizer, max_model_len
 from vllm.entrypoints.openai.api_server import create_logprobs, create_error_response, create_taichu_error_response
 
 
@@ -93,8 +92,8 @@ async def check_length_taichu(
     if prompt_ids is not None:
         input_ids = prompt_ids
     else:
-        logger.warning("[check_length_taichu] tokenizer: {}; {}".format(api_server.tokenizer, type(api_server.tokenizer)))
-        input_ids = api_server.tokenizer(prompt).input_ids
+        logger.warning("[check_length_taichu] tokenizer: {}; {}".format(tokenizer, type(tokenizer)))
+        input_ids = tokenizer(prompt).input_ids
     token_num = len(input_ids)
 
     # TODO
