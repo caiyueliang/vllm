@@ -21,65 +21,13 @@ from vllm.outputs import RequestOutput
 from vllm.sampling_params import SamplingParams
 from vllm.utils import random_uuid
 from vllm.entrypoints.openai.protocol import TaichuRequest, TaichuResponse, TaichuStreamResponse, TaichuErrorResponse
+from vllm.entrypoints.openai.api_server import create_logprobs, create_error_response, create_taichu_error_response
+from vllm.taichu.store.model_store import ModelStore
+from vllm.taichu.utils.utils import shink_input_size
+from vllm.taichu.env import *
 
 logger = init_logger(__name__)
 router = APIRouter()
-
-# Completion-related arguments:
-COMPLETION_MAX_PROMPT = int(os.getenv("COMPLETION_MAX_PROMPT", "14000"))
-MODEL_PATH = os.environ["MODEL_PATH"]
-
-DEFAULT_PREFIX = (
-        "我是由武汉人工智能研究院研发的多模态AI助手，我的名字叫小初。我可以帮你做很多事情哦，例如:\n\n"
-        "1. 回答各种类型的问题：历史、科学、文化、娱乐、体育等各种主题的问题，并提供详细的答案和解释。\n"
-        "2. 提供建议和信息：根据用户的需求和兴趣，提供各种类型的建议和信息，例如旅游、购物、健康、职业发展等方面的建议。\n"
-        "3. 文本创作：生成各种类型的文本，例如诗歌、小说、新闻、电子邮件、商业文案等等。\n"
-        "4. 聊天和交流：我可以与用户进行自然而流畅的对话和交流，帮助用户解决问题、获取信息或者进行娱乐。\n"
-        "5. 生成图片：我可以根据用户的文字描述，生成符合要求的图片或画作。\n"
-        "总之，我可以用自然语言与人类进行交流，并为他们提供各种类型的帮助和服务。无论用户需要什么类型的信息或者帮助，我都会尽力满足他们的需求。\n\n"
-        "接下来请开始向我提问吧。\n\n"
-    )
-
-
-def shink_input_size(full_input, max_prompt_size, prefix):
-    """ 如果 inputs + full_input 的长度 > max_prompt_size
-        对 full_input进行截断，缩减到 max_prompt_size 以内
-    """
-
-    header = "{prefix}{instruction}"
-
-    inputs = header.format_map({"instruction": full_input, "prefix": prefix})
-
-    if len(inputs) < max_prompt_size:
-        return inputs, full_input
-    else:
-        logger.warning("[shink_input_size] prompt size: {} large than {}".format(len(inputs), max_prompt_size))
-        delta = len(inputs) - max_prompt_size
-
-        full_input_list = full_input.split("###问题")
-        full_input_list = [i for i in full_input_list if i != '']
-        full_input_list = ["###问题" + i for i in full_input_list]
-
-        delete_sum = 0
-        delete_round = 0
-        while delete_sum < delta and len(full_input_list) > 1:
-            delete_sum += len(full_input_list[0])
-            full_input_list.pop(0)
-            delete_round += 1
-
-        truncated_full_input = "".join(full_input_list)
-        result = header.format_map({"instruction": truncated_full_input,
-                                    "prefix": prefix})
-
-        logger.warning("[shink_input_size] prompt size shink to {} after delete {} formal round".format(
-            len(result), delete_round))
-
-        return result, truncated_full_input
-
-
-# from vllm.entrypoints.openai.api_server import engine, tokenizer, max_model_len
-from vllm.entrypoints.openai.api_server import create_logprobs, create_error_response, create_taichu_error_response
-from vllm.taichu.store.model_store import ModelStore
 
 
 async def check_length_taichu(
