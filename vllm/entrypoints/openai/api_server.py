@@ -48,7 +48,7 @@ served_model = None
 app = fastapi.FastAPI()
 engine = None
 
-from vllm.taichu.api import infer
+import vllm.taichu
 
 
 def create_error_response(status_code: HTTPStatus,
