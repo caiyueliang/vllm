@@ -3,6 +3,7 @@ import json
 import time
 from http import HTTPStatus
 from typing import AsyncGenerator, List, Optional, Tuple, Union
+from fastapi import APIRouter  # 导入 APIRouter
 
 # import fastapi
 from fastapi import BackgroundTasks, Request
@@ -21,10 +22,11 @@ from vllm.sampling_params import SamplingParams
 from vllm.utils import random_uuid
 from vllm.entrypoints.openai.protocol import TaichuRequest, TaichuResponse, TaichuStreamResponse, TaichuErrorResponse
 
-from vllm.entrypoints.openai.api_server import app, engine, tokenizer, max_model_len
+from vllm.entrypoints.openai.api_server import engine, tokenizer, max_model_len
 from vllm.entrypoints.openai.api_server import create_logprobs, create_error_response, create_taichu_error_response
 
 logger = init_logger(__name__)
+router = APIRouter()
 
 # Completion-related arguments:
 COMPLETION_MAX_PROMPT = int(os.getenv("COMPLETION_MAX_PROMPT", "14000"))
@@ -102,7 +104,8 @@ async def check_length_taichu(
         return input_ids, None
 
 
-@app.post("/")
+# @app.post("/")
+@router.post("/")
 async def infer(request: TaichuRequest, raw_request: Request):
     """Completion API similar to OpenAI's API.
 
