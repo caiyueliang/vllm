@@ -93,7 +93,6 @@ async def check_length_taichu(
     if prompt_ids is not None:
         input_ids = prompt_ids
     else:
-        logger.warning("[check_length_taichu] tokenizer: {}; {}".format(ModelStore().tokenizer, type(ModelStore().tokenizer)))
         input_ids = ModelStore().tokenizer(prompt).input_ids
     token_num = len(input_ids)
 
@@ -148,15 +147,16 @@ async def infer(request: TaichuRequest, raw_request: Request):
 
     use_token_ids = False
     # TODO: prompt 预处理
+    logger.warning("[infer] input_text: {}".format(request.input_text))
+    logger.warning("[infer] input_context: {}".format(request.context))
+    logger.warning("[infer] rewrited_input_text: {}".format(request.rewrited_input_text))
+
     input_text = request.input_text
     context = request.context
     prefix = request.prefix if request.prefix is not None and request.prefix != "" else DEFAULT_PREFIX
     rewrited_input_text = request.rewrited_input_text \
         if request.rewrited_input_text is not None and request.rewrited_input_text != "" else request.input_text
 
-    logger.warning("[infer] input_text: {}".format(input_text))
-    logger.warning("[infer] input_context: {}".format(context))
-    logger.warning("[infer] rewrited_input_text: {}".format(rewrited_input_text))
     full_input = context + '\n' + "###问题：\n" + input_text + "\n\n" + "###答案："
     rewrited_full_input = context + '\n' + "###问题：\n" + rewrited_input_text + "\n\n" + "###答案："
 
