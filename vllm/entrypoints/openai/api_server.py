@@ -47,7 +47,8 @@ logger = init_logger(__name__)
 served_model = None
 app = fastapi.FastAPI()
 engine = None
-# tokenizer = None
+global tokenizer
+tokenizer = None
 max_model_len = None
 
 
@@ -953,7 +954,6 @@ if __name__ == "__main__":
     engine_model_config = asyncio.run(engine.get_model_config())
     max_model_len = engine_model_config.get_max_model_len()
 
-    global tokenizer
     # A separate tokenizer to map token IDs to strings.
     tokenizer = get_tokenizer(engine_args.tokenizer,
                               tokenizer_mode=engine_args.tokenizer_mode,
