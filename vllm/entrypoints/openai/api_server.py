@@ -899,8 +899,6 @@ async def create_completion(request: CompletionRequest, raw_request: Request):
 #
 #     return response
 
-from vllm.taichu import api
-app.include_router(api.router)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -955,11 +953,13 @@ if __name__ == "__main__":
     engine_model_config = asyncio.run(engine.get_model_config())
     max_model_len = engine_model_config.get_max_model_len()
 
-    global tokenizer
     # A separate tokenizer to map token IDs to strings.
     tokenizer = get_tokenizer(engine_args.tokenizer,
                               tokenizer_mode=engine_args.tokenizer_mode,
                               trust_remote_code=engine_args.trust_remote_code)
+
+    from vllm.taichu import api
+    app.include_router(api.router)
 
     uvicorn.run(app,
                 host=args.host,
