@@ -47,7 +47,7 @@ logger = init_logger(__name__)
 served_model = None
 app = fastapi.FastAPI()
 engine = None
-
+tokenizer = None
 import vllm.taichu
 
 
